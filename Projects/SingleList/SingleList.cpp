@@ -96,14 +96,14 @@ void ReleaseList()
 /*
 	특정 노드 탐색
 */
-int FindData(const char* pszData)
+NODE* FindData(const char* pszData)
 {
 	NODE* pCur = g_head.next;
 	NODE* pPrev = &g_head;
 	while (pCur != NULL)
 	{
 		if (strcmp(pCur->szData, pszData) == 0)
-			return 1;
+			return pPrev;
 		pCur = pCur->next;
 		pPrev = pPrev->next;
 	}
@@ -116,21 +116,16 @@ int FindData(const char* pszData)
 */
 int DeleteData(const char* pszData)
 {
-	NODE* pCur = g_head.next;
-	NODE* pPrev = &g_head;
-	while (pCur != NULL)
+	NODE* pPrev = FindData(pszData);
+	NODE* pDelete = NULL;
+	if (pPrev != NULL)
 	{
-		if (strcmp(pCur->szData, pszData) == 0)
-		{
-			//삭제
-			printf("DeleteData(): %s\n", pCur->szData);
-			pPrev->next = pCur->next;
-			free(pCur);
-			return 1;
-		}
+		pDelete = pPrev->next;
+		pPrev->next = pDelete->next;
 
-		pCur = pCur->next;
-		pPrev = pPrev->next;
+		printf("DeleteData(): %s\n", pDelete->szData);
+		free(pDelete);
+		return 1;
 	}
 
 	return 0;
@@ -148,12 +143,9 @@ void TestList()
 	InsertAtHead("TEST03");
 	PrintList();
 
-	if (FindData("TEST01") == 1)
-		printf("FindData(): TEST01 found\n");
-	if (FindData("TEST02") == 1)
-		printf("FindData(): TEST02 found\n");
-	if (FindData("TEST03") == 1)
-		printf("FindData(): TEST03 found\n");
+	printf("FindData(): %s found\n", FindData("TEST01")->next->szData);
+	printf("FindData(): %s found\n", FindData("TEST02")->next->szData);
+	printf("FindData(): %s found\n", FindData("TEST03")->next->szData);
 	putchar('\n');
 
 	DeleteData("TEST01");
@@ -169,13 +161,9 @@ void TestList()
 	InsertAtTail("TEST03");
 	PrintList();
 
-
-	if (FindData("TEST01") == 1)
-		printf("FindData(): TEST01 found\n");
-	if (FindData("TEST02") == 1)
-		printf("FindData(): TEST02 found\n");
-	if (FindData("TEST03") == 1)
-		printf("FindData(): TEST03 found\n");
+	printf("FindData(): %s found\n", FindData("TEST01")->next->szData);
+	printf("FindData(): %s found\n", FindData("TEST02")->next->szData);
+	printf("FindData(): %s found\n", FindData("TEST03")->next->szData);
 	putchar('\n');
 
 	DeleteData("TEST01");

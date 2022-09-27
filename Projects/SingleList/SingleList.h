@@ -13,7 +13,7 @@ typedef struct NODE
 void PrintList();
 int InsertAtHead(const char* pszData);
 int InsertAtTail(const char* pszData);
-int FindData(const char* pszData);
+NODE* FindData(const char* pszData);
 int DeleteData(const char* pszData);
 void ReleaseList();
 
