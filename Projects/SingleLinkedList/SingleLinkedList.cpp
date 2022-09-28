@@ -1,4 +1,4 @@
-#include "SingleList.h"
+#include "SingleLinkedList.h"
 
 NODE g_head = { 0 };		// 연결리스트 헤드 전역 변수
 NODE g_tail = { 0 };		// 연결리스트 마지막 부분 전역 변수

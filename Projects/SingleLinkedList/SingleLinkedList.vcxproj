@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{64f1b8e8-fb81-4af9-96b8-036f63f92380}</ProjectGuid>
-    <RootNamespace>DoubleList</RootNamespace>
+    <ProjectGuid>{286b2e81-6832-4dca-ad65-eb465b62a371}</ProjectGuid>
+    <RootNamespace>SingleLinkedList</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,10 +139,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DoubleList.cpp" />
+    <ClCompile Include="SingleLinkedList.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DoubleList.h" />
+    <ClInclude Include="SingleLinkedList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
