@@ -13,6 +13,7 @@ typedef struct NODE
 
 // 연결리스트
 void PrintList();
+void PrintHeadTail();
 int InsertAtHead(const char* pszData);
 int InsertAtTail(const char* pszData);
 NODE* FindData(const char* pszData);

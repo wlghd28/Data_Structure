@@ -19,6 +19,14 @@ void PrintList(void)
 }
 
 /*
+	연결리스트 헤드, 마지막 부분 전역 변수의 next 값 출력
+*/
+void PrintHeadTail()
+{
+	printf("g_head.next: [%p], g_tail.next: [%p]\n", g_head.next, g_tail.next);
+}
+
+/*
 	연결 리스트에 데이터가 있는지 없는지 판단
 */
 int IsEmpty()
@@ -132,6 +140,9 @@ int DeleteData(const char* pszData)
 		if (pDelete == g_tail.next)
 			g_tail.next = pPrev;
 
+		if (g_head.next == NULL)
+			g_tail.next = NULL;
+
 		free(pDelete);
 		return 1;
 	}
@@ -145,8 +156,11 @@ void TestList()
 {
 	puts("*** InsertAtHead() ***");
 	InsertAtHead("TEST01");
+	PrintHeadTail();
 	InsertAtHead("TEST02");
+	PrintHeadTail();
 	InsertAtHead("TEST03");
+	PrintHeadTail();
 	PrintList();
 
 	printf("FindData(): %s found\n", FindData("TEST01") == 0 ? 0 : FindData("TEST01")->next->szData);
@@ -155,16 +169,22 @@ void TestList()
 	putchar('\n');
 
 	DeleteData("TEST01");
+	PrintHeadTail();
 	PrintList();
 	DeleteData("TEST02");
+	PrintHeadTail();
 	PrintList();
 	DeleteData("TEST03");
+	PrintHeadTail();
 	PrintList();
 
 	puts("*** InsertAtTail() ***");
 	InsertAtTail("TEST01");
+	PrintHeadTail();
 	InsertAtTail("TEST02");
+	PrintHeadTail();
 	InsertAtTail("TEST03");
+	PrintHeadTail();
 	PrintList();
 
 	printf("FindData(): %s found\n", FindData("TEST01") == 0 ? 0 : FindData("TEST01")->next->szData);
@@ -173,10 +193,13 @@ void TestList()
 	putchar('\n');
 
 	DeleteData("TEST01");
+	PrintHeadTail();
 	PrintList();
 	DeleteData("TEST02");
+	PrintHeadTail();
 	PrintList();
 	DeleteData("TEST03");
+	PrintHeadTail();
 	PrintList();
 
 	ReleaseList();
@@ -203,6 +226,11 @@ int PopData(NODE* pPopNode)
 	NODE* sp = g_head.next;
 	memcpy(pPopNode, sp, sizeof(NODE));
 	g_head.next = sp->next;
+
+	if (g_head.next == NULL || sp == g_tail.next)
+		g_tail.next = NULL;
+
+	printf("Pop: %s\n", sp->szData);
 	free(sp);
 	sp = NULL;
 
@@ -217,17 +245,20 @@ void TestStack()
 	// Stack 테스트를 위한 코드
 	puts("*** PushData() ***");
 	PushData("TEST01");
+	PrintHeadTail();
 	PushData("TEST02");
+	PrintHeadTail();
 	PushData("TEST03");
+	PrintHeadTail();
 	PrintList();
 
 	NODE node = { 0 };
 	PopData(&node);
-	printf("Pop: %s\n", node.szData);
+	PrintHeadTail();
 	PopData(&node);
-	printf("Pop: %s\n", node.szData);
+	PrintHeadTail();
 	PopData(&node);
-	printf("Pop: %s\n", node.szData);
+	PrintHeadTail();
 
 	ReleaseList();
 }
@@ -251,6 +282,11 @@ int Dequeue(NODE* pGetNode)
 	NODE* sp = g_head.next;
 	memcpy(pGetNode, sp, sizeof(NODE));
 	g_head.next = sp->next;
+
+	if (g_head.next == NULL || sp == g_tail.next)
+		g_tail.next = NULL;
+
+	printf("Dequeue: %s\n", sp->szData);
 	free(sp);
 	sp = NULL;
 
@@ -265,17 +301,20 @@ void TestQueue()
 	// Queue 테스트를 위한 코드
 	puts("*** Enqueue() ***");
 	Enqueue("TEST01");
+	PrintHeadTail();
 	Enqueue("TEST02");
+	PrintHeadTail();
 	Enqueue("TEST03");
+	PrintHeadTail();
 	PrintList();
 
 	NODE node = { 0 };
 	Dequeue(&node);
-	printf("Dequeue: %s\n", node.szData);
+	PrintHeadTail();
 	Dequeue(&node);
-	printf("Dequeue: %s\n", node.szData);
+	PrintHeadTail();
 	Dequeue(&node);
-	printf("Dequeue: %s\n", node.szData);
+	PrintHeadTail();
 
 	ReleaseList();
 
