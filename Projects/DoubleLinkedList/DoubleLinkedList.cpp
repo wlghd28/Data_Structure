@@ -18,9 +18,6 @@ int InitList()
 	memset(g_pHeadNode, 0, sizeof(NODE));
 	memset(g_pTailNode, 0, sizeof(NODE));
 
-	strcpy_s(g_pHeadNode->szData, sizeof(g_pHeadNode->szData), "DUMMY HEAD");
-	strcpy_s(g_pTailNode->szData, sizeof(g_pTailNode->szData), "DUMMY TAIL");
-
 	g_iNodeSize = 0;
 
 	g_pHeadNode->next = g_pTailNode;
@@ -42,6 +39,7 @@ void ReleaseList()
 		pTmp = pTmp->next;
 
 		printf("free(%p)\n", pDelete);
+		free(pDelete->pData);
 		free(pDelete);
 	}
 
@@ -60,10 +58,19 @@ void PrintList()
 	printf("PrintList(): g_iNodeSize: %d, g_pHeadNode [%p], g_pTailNode [%p]\n"
 		, g_iNodeSize, g_pHeadNode, g_pTailNode);
 
+	int i = 0;
 	NODE* pTmp = g_pHeadNode;
 	while (pTmp != NULL)
 	{
-		printf("[%p] %p, %s [%p]\n", pTmp->prev, pTmp, pTmp->szData, pTmp->next);
+		if (pTmp == g_pHeadNode || pTmp == g_pTailNode)
+		{
+			puts("[DUMMY]");
+		}
+		else
+		{
+			printf("Index: %d %s, %s\n", i, pTmp->pData->szName, pTmp->pData->szPhone);
+			i++;
+		}
 		pTmp = pTmp->next;
 	}
 }
@@ -78,13 +85,16 @@ int IsEmpty()
 
 /*
 	Head 쪽으로 데이터 삽입
+	pParam : 호출자가 메모리를 동적 할당 + 값 설정까지 해서 전달 
 */
-int InsertAtHead(const char* pszData)
+int InsertAtHead(USERDATA* pParam)
 {
 	NODE* pNewNode = (NODE*)malloc(sizeof(NODE));
 	if (pNewNode == NULL) return -1;
 	memset(pNewNode, 0, sizeof(NODE));
-	strcpy_s(pNewNode->szData, sizeof(pNewNode->szData), pszData);
+	//strcpy_s(pNewNode->szData, sizeof(pNewNode->szData), pszData);
+
+	pNewNode->pData = pParam;
 
 	pNewNode->prev = g_pHeadNode;
 	pNewNode->next = g_pHeadNode->next;
@@ -99,12 +109,14 @@ int InsertAtHead(const char* pszData)
 /*
 	Tail 쪽으로 데이터 삽입
 */
-int InsertAtTail(const char* pszData)
+int InsertAtTail(USERDATA* pParam)
 {
 	NODE* pNewNode = (NODE*)malloc(sizeof(NODE));
 	if (pNewNode == NULL) return -1;
 	memset(pNewNode, 0, sizeof(NODE));
-	strcpy_s(pNewNode->szData, sizeof(pNewNode->szData), pszData);
+	//strcpy_s(pNewNode->szData, sizeof(pNewNode->szData), pszData);
+
+	pNewNode->pData = pParam;
 
 	pNewNode->prev = g_pTailNode->prev;
 	pNewNode->next = g_pTailNode;
@@ -120,16 +132,16 @@ int InsertAtTail(const char* pszData)
 /*
 	특정 인덱스 차례 노드에 데이터 삽입
 */
-int InsertAtIndex(int iIndex, const char* pszData)
+int InsertAtIndex(int iIndex, USERDATA* pParam)
 {
 	int iret = 0;
 	if (iIndex == 0)
 	{
-		iret = InsertAtHead(pszData);
+		iret = InsertAtHead(pParam);
 	}
 	else if (iIndex >= GetLength())
 	{
-		iret = InsertAtTail(pszData);
+		iret = InsertAtTail(pParam);
 	}
 	else
 	{
@@ -137,7 +149,8 @@ int InsertAtIndex(int iIndex, const char* pszData)
 		NODE* pNewNode = (NODE*)malloc(sizeof(NODE));
 		if (pNewNode == NULL) return -1;
 		memset(pNewNode, 0, sizeof(NODE));
-		strcpy_s(pNewNode->szData, sizeof(pNewNode->szData), pszData);
+		//strcpy_s(pNewNode->szData, sizeof(pNewNode->szData), pszData);
+		pNewNode->pData = pParam;
 
 		int i = 0;
 		NODE* pTmp = g_pHeadNode->next;
@@ -165,12 +178,12 @@ int InsertAtIndex(int iIndex, const char* pszData)
 /*
 	리스트에서 특정 노드 탐색
 */
-NODE* FindNode(const char* pszData)
+NODE* FindNode(const char* pszName)
 {
 	NODE* pTmp = g_pHeadNode->next;
 	while (pTmp != g_pTailNode)
 	{
-		if (strcmp(pTmp->szData, pszData) == 0)
+		if (strcmp(pTmp->pData->szName, pszName) == 0)
 			return pTmp;
 
 		pTmp = pTmp->next;
@@ -202,14 +215,16 @@ NODE* GetAtIndexData(int iIndex)
 /*
 	리스트에서 특정 노드 삭제
 */
-int DeleteNode(const char* pszData)
+int DeleteNode(const char* pszName)
 {
-	NODE* pDelete = FindNode(pszData);
+	NODE* pDelete = FindNode(pszName);
 
 	pDelete->prev->next = pDelete->next;
 	pDelete->next->prev = pDelete->prev;
 
 	printf("DeleteNode(): %p\n", pDelete);
+
+	free(pDelete->pData);
 	free(pDelete);
 
 	g_iNodeSize--;
@@ -242,43 +257,24 @@ int main()
 {
 	InitList();
 
-	InsertAtHead("TEST01");
-	InsertAtHead("TEST02");
-	InsertAtHead("TEST03");
+	USERDATA* pNewData = NULL;
+
+	pNewData = (USERDATA*)malloc(sizeof(USERDATA));
+	if (pNewData == NULL) return -1;
+	memset(pNewData, 0, sizeof(USERDATA));
+	strcpy_s(pNewData->szName, sizeof(pNewData->szName), "Ji-hong");
+	strcpy_s(pNewData->szPhone, sizeof(pNewData->szPhone), "010-1234-1234");
+	InsertAtTail(pNewData);
+
+	pNewData = (USERDATA*)malloc(sizeof(USERDATA));
+	if (pNewData == NULL) return -1;
+	memset(pNewData, 0, sizeof(USERDATA));
+	strcpy_s(pNewData->szName, sizeof(pNewData->szName), "TEST");
+	strcpy_s(pNewData->szPhone, sizeof(pNewData->szPhone), "010-1111-2222");
+	InsertAtTail(pNewData);
+
+
 	PrintList();
-
-	printf("FindNode(): [%p]\n", FindNode("TEST01"));
-	printf("FindNode(): [%p]\n", FindNode("TEST02"));
-	printf("FindNode(): [%p]\n", FindNode("TEST03"));
-
-	DeleteNode("TEST01");
-	DeleteNode("TEST03");
-	DeleteNode("TEST02");
-	PrintList();
-
-	InsertAtTail("TEST01");
-	InsertAtTail("TEST02");
-	InsertAtTail("TEST03");
-	PrintList();
-
-
-	InsertAtIndex(0, "TEST AT 00");
-	PrintList();
-	InsertAtIndex(2, "TEST AT 02");
-	PrintList();
-	InsertAtIndex(1, "TEST AT 01");
-	PrintList();
-	InsertAtIndex(3, "TEST AT 03");
-	PrintList();
-
-	NODE* pNode = GetAtIndexData(0);
-
-	pNode == NULL ? printf("GetAtIndesData(%d): null\n", 0) : printf("GetAtIndesData(%d): %s\n", 0, pNode->szData);
-	pNode = GetAtIndexData(1);
-	pNode == NULL ? printf("GetAtIndesData(%d): null\n", 1) : printf("GetAtIndesData(%d): %s\n", 1, pNode->szData);
-	pNode = GetAtIndexData(2);
-	pNode == NULL ? printf("GetAtIndesData(%d): null\n", 2) : printf("GetAtIndesData(%d): %s\n", 2, pNode->szData);
-
 	ReleaseList();
 
 	return 0;
