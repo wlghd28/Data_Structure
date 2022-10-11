@@ -11,7 +11,10 @@
 // 테스트용 USERDATA 구조체
 typedef struct USERDATA
 {
-	char szName[64];
+	// 멤버 함수 포인터
+	const char* (*GetKey)(USERDATA*);
+
+	char szName[64];			// key
 	char szPhone[64];
 }USERDATA;
 
@@ -20,7 +23,7 @@ typedef struct USERDATA
 typedef struct NODE
 {
 	// 관리 대상 자료
-	USERDATA* pData;
+	void* pData;
 
 	// 자료 구조
 	struct NODE* prev;
@@ -37,10 +40,13 @@ void PrintList();
 int IsEmpty();
 NODE* FindNode(const char* pszName);
 int DeleteNode(const char* pszName);
-int InsertAtHead(USERDATA* pParam);
-int InsertAtTail(USERDATA* pParam);
-int InsertAtIndex(int iIndex, const char* pszData);
+int InsertAtHead(void* pParam);
+int InsertAtTail(void* pParam);
+int InsertAtIndex(int iIndex, void* pParam);
 
 NODE* GetAtIndexData(int iIndex);
 int GetLength();
 int GetSize();
+
+const char* GetKeyFromUserData(USERDATA* pUser);
+USERDATA* CreateUserData(const char* pszName, const char* pszPhone);

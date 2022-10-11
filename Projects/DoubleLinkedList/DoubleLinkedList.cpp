@@ -68,7 +68,8 @@ void PrintList()
 		}
 		else
 		{
-			printf("Index: %d %s, %s\n", i, pTmp->pData->szName, pTmp->pData->szPhone);
+			USERDATA* pUser = (USERDATA*)(pTmp->pData);
+			printf("Index: %d %s\n", i, pUser->GetKey(pUser));
 			i++;
 		}
 		pTmp = pTmp->next;
@@ -87,15 +88,17 @@ int IsEmpty()
 	Head 쪽으로 데이터 삽입
 	pParam : 호출자가 메모리를 동적 할당 + 값 설정까지 해서 전달 
 */
-int InsertAtHead(USERDATA* pParam)
+int InsertAtHead(void* pParam)
 {
 	NODE* pNewNode = (NODE*)malloc(sizeof(NODE));
 	if (pNewNode == NULL) return -1;
 	memset(pNewNode, 0, sizeof(NODE));
 	//strcpy_s(pNewNode->szData, sizeof(pNewNode->szData), pszData);
 
+	// 관리 대상 자료에 관한 초기화
 	pNewNode->pData = pParam;
 
+	// 연결 리스트에 관한 초기화
 	pNewNode->prev = g_pHeadNode;
 	pNewNode->next = g_pHeadNode->next;
 	g_pHeadNode->next->prev = pNewNode;
@@ -109,7 +112,7 @@ int InsertAtHead(USERDATA* pParam)
 /*
 	Tail 쪽으로 데이터 삽입
 */
-int InsertAtTail(USERDATA* pParam)
+int InsertAtTail(void* pParam)
 {
 	NODE* pNewNode = (NODE*)malloc(sizeof(NODE));
 	if (pNewNode == NULL) return -1;
@@ -132,7 +135,7 @@ int InsertAtTail(USERDATA* pParam)
 /*
 	특정 인덱스 차례 노드에 데이터 삽입
 */
-int InsertAtIndex(int iIndex, USERDATA* pParam)
+int InsertAtIndex(int iIndex, void* pParam)
 {
 	int iret = 0;
 	if (iIndex == 0)
@@ -178,12 +181,15 @@ int InsertAtIndex(int iIndex, USERDATA* pParam)
 /*
 	리스트에서 특정 노드 탐색
 */
-NODE* FindNode(const char* pszName)
+NODE* FindNode(const char* pszKey)
 {
 	NODE* pTmp = g_pHeadNode->next;
+	const char* (*pfGetKey)(void*) = NULL;
 	while (pTmp != g_pTailNode)
 	{
-		if (strcmp(pTmp->pData->szName, pszName) == 0)
+		// 관리 대상 데이터 구조체 첫 번째 멤버가 함수 포인터임을 가정
+		pfGetKey = (const char* (*)(void*))pTmp->pData;
+		if (strcmp(pfGetKey(pTmp->pData), pszKey) == 0)
 			return pTmp;
 
 		pTmp = pTmp->next;
@@ -215,9 +221,9 @@ NODE* GetAtIndexData(int iIndex)
 /*
 	리스트에서 특정 노드 삭제
 */
-int DeleteNode(const char* pszName)
+int DeleteNode(const char* pszKey)
 {
-	NODE* pDelete = FindNode(pszName);
+	NODE* pDelete = FindNode(pszKey);
 
 	pDelete->prev->next = pDelete->next;
 	pDelete->next->prev = pDelete->prev;
@@ -248,7 +254,32 @@ int GetSize()
 	return g_iNodeSize;
 }
 
+/*
+	USERDATA 데이터의 Key(이름) 값을 반환
+*/
+const char* GetKeyFromUserData(USERDATA* pUser)
+{
+	return pUser->szName;
+}
 
+/*
+	새로운 USERDATA 데이터 생성
+*/
+USERDATA* CreateUserData(const char* pszName, const char* pszPhone)
+{
+	USERDATA* pNewData = NULL;
+	pNewData = (USERDATA*)malloc(sizeof(USERDATA));
+	if (pNewData == NULL) return NULL;
+	memset(pNewData, 0, sizeof(USERDATA));
+
+	strcpy_s(pNewData->szName, sizeof(pNewData->szName), pszName);
+	strcpy_s(pNewData->szPhone, sizeof(pNewData->szPhone), pszPhone);
+
+	// 구조체 멤버 함수 포인터 초기화
+	pNewData->GetKey = GetKeyFromUserData;
+
+	return pNewData;
+}
 
 /*
 	메인함수
@@ -256,24 +287,11 @@ int GetSize()
 int main()
 {
 	InitList();
-
 	USERDATA* pNewData = NULL;
-
-	pNewData = (USERDATA*)malloc(sizeof(USERDATA));
-	if (pNewData == NULL) return -1;
-	memset(pNewData, 0, sizeof(USERDATA));
-	strcpy_s(pNewData->szName, sizeof(pNewData->szName), "Ji-hong");
-	strcpy_s(pNewData->szPhone, sizeof(pNewData->szPhone), "010-1234-1234");
+	pNewData = CreateUserData("Ji-hong", "010-1234-1234");
 	InsertAtTail(pNewData);
-
-	pNewData = (USERDATA*)malloc(sizeof(USERDATA));
-	if (pNewData == NULL) return -1;
-	memset(pNewData, 0, sizeof(USERDATA));
-	strcpy_s(pNewData->szName, sizeof(pNewData->szName), "TEST");
-	strcpy_s(pNewData->szPhone, sizeof(pNewData->szPhone), "010-1111-2222");
+	pNewData = CreateUserData("TEST", "010-1111-2222");
 	InsertAtTail(pNewData);
-
-
 	PrintList();
 	ReleaseList();
 
